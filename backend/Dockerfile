@@ -30,7 +30,7 @@ LABEL org.opencontainers.image.source="https://github.com/TomBursch/kitchenowl"
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends \
         libxml2 libpcre2-dev libre2-dev libexpat1 curl \
-        media-types libicu-dev \
+        media-types libicu-dev tesseract-ocr tesseract-ocr-eng poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Use virtual enviroment

@@ -3,7 +3,7 @@ from sqlalchemy import desc, func
 from app.config import FRONT_URL
 from app.errors import NotFoundRequest
 from app.models import Household, RecipeItems, RecipeTags
-from flask import jsonify, Blueprint
+from flask import jsonify, Blueprint, request
 from flask_jwt_extended import current_user, jwt_required
 from app import db
 from app.helpers import validate_args, authorize_household
@@ -11,6 +11,12 @@ from app.models import Recipe, Item, Tag
 from app.models.recipe import RecipeVisibility
 from app.service.file_has_access_or_download import file_has_access_or_download
 from app.service.recipe_scraping import scrape
+from app.service.recipe_lens_ocr import (
+    InvalidRecipeFile,
+    OCRUnavailable,
+    UnreadableRecipe,
+    extract_printed_recipe_text,
+)
 from .schemas import (
     SearchByNameRequest,
     AddRecipe,
@@ -23,6 +29,25 @@ from .schemas import (
 
 recipe = Blueprint("recipe", __name__)
 recipeHousehold = Blueprint("recipe", __name__)
+
+
+@recipeHousehold.route("/scan", methods=["POST"])
+@jwt_required()
+@authorize_household()
+def scanPrintedRecipe(household_id):
+    """OCR a temporary upload; saving a recipe remains a separate user action."""
+    uploaded = request.files.get("file")
+    if uploaded is None or not uploaded.filename:
+        return jsonify({"error": "Select a recipe file to upload."}), 400
+    try:
+        text = extract_printed_recipe_text(uploaded.stream, uploaded.filename)
+    except InvalidRecipeFile as exc:
+        return jsonify({"error": str(exc)}), 400
+    except UnreadableRecipe as exc:
+        return jsonify({"error": str(exc)}), 422
+    except OCRUnavailable as exc:
+        return jsonify({"error": str(exc)}), 503
+    return jsonify({"text": text})
 
 
 @recipeHousehold.route("", methods=["GET"])
