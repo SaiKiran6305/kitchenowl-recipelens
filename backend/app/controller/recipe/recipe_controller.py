@@ -11,6 +11,7 @@ from app.models import Recipe, Item, Tag
 from app.models.recipe import RecipeVisibility
 from app.service.file_has_access_or_download import file_has_access_or_download
 from app.service.recipe_scraping import scrape
+from app.service.recipe_lens_draft import InvalidDraft, build_recipe_draft
 from app.service.recipe_lens_ocr import (
     InvalidRecipeFile,
     OCRUnavailable,
@@ -48,6 +49,26 @@ def scanPrintedRecipe(household_id):
     except OCRUnavailable as exc:
         return jsonify({"error": str(exc)}), 503
     return jsonify({"text": text})
+
+
+@recipeHousehold.route("/scan/draft", methods=["POST"])
+@jwt_required()
+@authorize_household()
+def scanRecipeDraft(household_id):
+    """Extract a reviewable draft without creating recipes, items, or uploads."""
+    uploaded = request.files.get("file")
+    if uploaded is None or not uploaded.filename:
+        return jsonify({"error": "Select a recipe file to upload."}), 400
+    try:
+        text = extract_printed_recipe_text(uploaded.stream, uploaded.filename)
+        result = build_recipe_draft(text)
+    except InvalidRecipeFile as exc:
+        return jsonify({"error": str(exc)}), 400
+    except (UnreadableRecipe, InvalidDraft) as exc:
+        return jsonify({"error": str(exc)}), 422
+    except OCRUnavailable as exc:
+        return jsonify({"error": str(exc)}), 503
+    return jsonify(result)
 
 
 @recipeHousehold.route("", methods=["GET"])
@@ -455,3 +476,4 @@ def searchAllRecipeByTag(args):
             .all()
         ]
     )
+
