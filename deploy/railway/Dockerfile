@@ -24,8 +24,8 @@ RUN apt-get clean
 # Clone the flutter repo
 RUN git init /usr/local/src/flutter \
     && git -C /usr/local/src/flutter remote add origin https://github.com/flutter/flutter.git \
-    && git -C /usr/local/src/flutter fetch --depth 1 origin 6a19cca56475dbfba1478ee68d7bd0c2ef891da1 \
-    && git -C /usr/local/src/flutter checkout --detach FETCH_HEAD
+    && git -C /usr/local/src/flutter fetch --depth 1 origin tag 3.47.5 \
+    && git -C /usr/local/src/flutter checkout --detach 6a19cca56475dbfba1478ee68d7bd0c2ef891da1
 
 # Set flutter path
 ENV PATH="${PATH}:/usr/local/src/flutter/bin"
