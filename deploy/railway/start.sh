@@ -19,7 +19,7 @@ fi
 
 # One process owns the SQLite database and in-process Socket.IO sessions.
 # The existing entrypoint uses a uWSGI socket; Railway needs an HTTP listener.
-exec uwsgi --ini wsgi.ini --http "0.0.0.0:${PORT:-8080}" \
+exec uwsgi --ini wsgi.ini --http-socket "0.0.0.0:${PORT:-8080}" \
   --gevent 100 --processes 1 --max-fd 65536 \
   --static-map /=/var/www/web/kitchenowl \
   --route '^/(?!api)(?!mcp)[^\.]*$ static:/var/www/web/kitchenowl/index.html'
