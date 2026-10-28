@@ -1,7 +1,7 @@
 # ------------
 # WEB BUILDER
 # ------------
-FROM --platform=$BUILDPLATFORM debian:latest AS app_builder
+FROM debian:bookworm-slim AS app_builder
 
 # Install dependencies
 RUN apt-get update -y
@@ -102,10 +102,6 @@ COPY backend/app /usr/src/kitchenowl/app
 COPY backend/templates /usr/src/kitchenowl/templates
 COPY backend/migrations /usr/src/kitchenowl/migrations
 WORKDIR /usr/src/kitchenowl
-VOLUME ["/data"]
-
-HEALTHCHECK --interval=60s --timeout=3s CMD uwsgi_curl localhost:5000 /api/health/8M4F88S8ooi4sMbLBfkkV7ctWwgibW6V || exit 1
-
 ENV STORAGE_PATH='/data'
 ENV JWT_SECRET_KEY='PLEASE_CHANGE_ME'
 ENV DEBUG='False'
