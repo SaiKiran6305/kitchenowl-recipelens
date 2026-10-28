@@ -112,3 +112,6 @@ venv
 
 # Temporary files
 **/__pycache__
+# Include dependency lockfiles in the Railway Docker build context.
+!backend/uv.lock
+!kitchenowl/pubspec.lock
