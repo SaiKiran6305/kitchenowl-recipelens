@@ -108,4 +108,21 @@ def test_missing_file_is_rejected(user_client_with_household, household_id):
     assert Recipe.query.count() == 0
 
 
-
+def test_provider_timeout_returns_local_draft_without_writes(
+    user_client_with_household,
+    household_id,
+    monkeypatch,
+):
+    monkeypatch.setenv("RECIPELENS_MODEL", "test/model")
+    with (
+        patch(OCR_PATH, return_value=SOURCE),
+        patch(
+            "app.service.recipe_lens_draft.ModelDraftProvider.extract",
+            side_effect=TimeoutError(),
+        ),
+    ):
+        response = upload(user_client_with_household, household_id)
+    assert response.status_code == 200
+    assert response.get_json()["extraction_method"] == "local"
+    assert any(w["code"] == "fallback" for w in response.get_json()["warnings"])
+    assert Recipe.query.count() == 0
