@@ -1,0 +1,313 @@
+{
+  "executed_at_utc": "2026-10-29T00:08:27.888978+00:00",
+  "executor": "Automated live API verification",
+  "results": [
+    {
+      "test": "draft",
+      "status": 200,
+      "seconds": 3.41,
+      "response": {
+        "draft": {
+          "cook_time": 3,
+          "ingredients": [
+            "2 slices bread",
+            "1 tablespoon butter"
+          ],
+          "instructions": [
+            "Toast the bread.",
+            "Spread butter on toast."
+          ],
+          "prep_time": 5,
+          "servings": 2,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": {
+          "cook_time": 3,
+          "description": "Toast the bread.\n\nSpread butter on toast.",
+          "name": "Simple Toast",
+          "prep_time": 5,
+          "yields": 2
+        },
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast\n\nServings: 2\n\nPrep time: 5 minutes\nCook time: 3 minutes\nIngredients\n\n2 slices bread\n\n1 tablespoon butter\nInstructions\n\nToast the bread.\nSpread butter on toast.",
+        "validation": {
+          "errors": [],
+          "valid": true
+        },
+        "warnings": []
+      },
+      "passed": true
+    },
+    {
+      "test": "text",
+      "status": 200,
+      "seconds": 2.9,
+      "response": {
+        "text": "Simple Toast\n\nServings: 2\n\nPrep time: 5 minutes\nCook time: 3 minutes\nIngredients\n\n2 slices bread\n\n1 tablespoon butter\nInstructions\n\nToast the bread.\nSpread butter on toast."
+      },
+      "passed": true
+    },
+    {
+      "test": "missing-fields",
+      "status": 200,
+      "seconds": 3.08,
+      "response": {
+        "draft": {
+          "cook_time": null,
+          "ingredients": [
+            "2 slices bread"
+          ],
+          "instructions": [
+            "Toast bread."
+          ],
+          "prep_time": null,
+          "servings": null,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": {
+          "description": "Toast bread.",
+          "name": "Simple Toast"
+        },
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast\nIngredients\n\n2 slices bread\nInstructions\nToast bread.",
+        "validation": {
+          "errors": [],
+          "valid": true
+        },
+        "warnings": [
+          {
+            "code": "missing",
+            "field": "servings",
+            "message": "Servings was not found."
+          },
+          {
+            "code": "missing",
+            "field": "prep_time",
+            "message": "Preparation time was not found."
+          },
+          {
+            "code": "missing",
+            "field": "cook_time",
+            "message": "Cooking time was not found."
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "test": "incomplete",
+      "status": 200,
+      "seconds": 2.28,
+      "response": {
+        "draft": {
+          "cook_time": null,
+          "ingredients": [],
+          "instructions": [],
+          "prep_time": null,
+          "servings": null,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": null,
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast",
+        "validation": {
+          "errors": [
+            {
+              "code": "required",
+              "field": "ingredients",
+              "message": "At least one ingredient is required."
+            },
+            {
+              "code": "required",
+              "field": "instructions",
+              "message": "At least one instruction is required."
+            }
+          ],
+          "valid": false
+        },
+        "warnings": [
+          {
+            "code": "required",
+            "field": "ingredients",
+            "message": "At least one ingredient is required."
+          },
+          {
+            "code": "required",
+            "field": "instructions",
+            "message": "At least one instruction is required."
+          },
+          {
+            "code": "missing",
+            "field": "servings",
+            "message": "Servings was not found."
+          },
+          {
+            "code": "missing",
+            "field": "prep_time",
+            "message": "Preparation time was not found."
+          },
+          {
+            "code": "missing",
+            "field": "cook_time",
+            "message": "Cooking time was not found."
+          }
+        ]
+      },
+      "passed": true
+    },
+    {
+      "test": "invalid-file",
+      "status": 400,
+      "seconds": 4.1,
+      "response": {
+        "error": "Use a PNG, JPEG, or single-page PDF."
+      },
+      "passed": true
+    },
+    {
+      "test": "corrupt-image",
+      "status": 400,
+      "seconds": 4.8,
+      "response": {
+        "error": "The uploaded image is invalid."
+      },
+      "passed": true
+    },
+    {
+      "test": "no-recipe-writes",
+      "passed": true,
+      "before_count": 0,
+      "after_count": 0
+    },
+    {
+      "test": "jpeg",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "draft": {
+          "cook_time": 3,
+          "ingredients": [
+            "2 slices bread",
+            "1 tablespoon butter"
+          ],
+          "instructions": [
+            "Toast the bread.",
+            "Spread butter on toast."
+          ],
+          "prep_time": 5,
+          "servings": 2,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": {
+          "cook_time": 3,
+          "description": "Toast the bread.\n\nSpread butter on toast.",
+          "name": "Simple Toast",
+          "prep_time": 5,
+          "yields": 2
+        },
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast\n\nServings: 2\n\nPrep time: 5 minutes\nCook time: 3 minutes\nIngredients\n\n2 slices bread\n\n1 tablespoon butter\nInstructions\n\nToast the bread.\nSpread butter on toast.",
+        "validation": {
+          "errors": [],
+          "valid": true
+        },
+        "warnings": []
+      }
+    },
+    {
+      "test": "pdf",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "draft": {
+          "cook_time": 3,
+          "ingredients": [
+            "2 slices bread",
+            "1 tablespoon butter"
+          ],
+          "instructions": [
+            "Toast the bread.",
+            "Spread butter on toast."
+          ],
+          "prep_time": 5,
+          "servings": 2,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": {
+          "cook_time": 3,
+          "description": "Toast the bread.\n\nSpread butter on toast.",
+          "name": "Simple Toast",
+          "prep_time": 5,
+          "yields": 2
+        },
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast\n\nServings: 2\n\nPrep time: 5 minutes\nCook time: 3 minutes\nIngredients\n\n2 slices bread\n\n1 tablespoon butter\nInstructions\n\nToast the bread.\nSpread butter on toast.",
+        "validation": {
+          "errors": [],
+          "valid": true
+        },
+        "warnings": []
+      }
+    },
+    {
+      "test": "multipage-pdf",
+      "status": 400,
+      "passed": true,
+      "response": {
+        "error": "Upload a single-page PDF."
+      }
+    },
+    {
+      "test": "administrator-household-bypass",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "draft": {
+          "cook_time": 3,
+          "ingredients": [
+            "2 slices bread",
+            "1 tablespoon butter"
+          ],
+          "instructions": [
+            "Toast the bread.",
+            "Spread butter on toast."
+          ],
+          "prep_time": 5,
+          "servings": 2,
+          "title": "Simple Toast"
+        },
+        "extraction_method": "local",
+        "recipe_payload": {
+          "cook_time": 3,
+          "description": "Toast the bread.\n\nSpread butter on toast.",
+          "name": "Simple Toast",
+          "prep_time": 5,
+          "yields": 2
+        },
+        "requires_review": true,
+        "schema_version": 1,
+        "source_text": "Simple Toast\n\nServings: 2\n\nPrep time: 5 minutes\nCook time: 3 minutes\nIngredients\n\n2 slices bread\n\n1 tablespoon butter\nInstructions\n\nToast the bread.\nSpread butter on toast.",
+        "validation": {
+          "errors": [],
+          "valid": true
+        },
+        "warnings": []
+      },
+      "note": "Existing authorize_household explicitly permits server administrators. Non-admin denial not verified live."
+    }
+  ],
+  "token_revocation": {
+    "delete_status": 200,
+    "subsequent_authenticated_request_status": 401
+  }
+}
