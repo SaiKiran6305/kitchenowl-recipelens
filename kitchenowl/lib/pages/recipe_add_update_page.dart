@@ -152,6 +152,11 @@ class _AddUpdateRecipePageState extends State<AddUpdateRecipePage> {
                                   ? () async {
                                       final recipe = await cubit.saveRecipe();
                                       if (!mounted) return;
+                                      if (recipe == null && !isUpdate) {
+                                        showSnackbar(context: context,
+                                          content: const Text('Could not save recipe. Try again.'));
+                                        return;
+                                      }
                                       Navigator.of(context)
                                           .pop(UpdateEnum.updated);
                                       if (recipe != null &&
@@ -174,6 +179,11 @@ class _AddUpdateRecipePageState extends State<AddUpdateRecipePage> {
                                     ? () async {
                                         final recipe = await cubit.saveRecipe();
                                         if (!mounted) return;
+                                        if (recipe == null && !isUpdate) {
+                                          showSnackbar(context: context,
+                                            content: const Text('Could not save recipe. Try again.'));
+                                          return;
+                                        }
                                         Navigator.of(context)
                                             .pop(UpdateEnum.updated);
                                         if (recipe != null &&
