@@ -25,6 +25,7 @@ import 'package:kitchenowl/pages/password_reset_page.dart';
 import 'package:kitchenowl/pages/recipe_discover_page.dart';
 import 'package:kitchenowl/pages/recipe_page.dart';
 import 'package:kitchenowl/pages/recipe_scraper_page.dart';
+import 'package:kitchenowl/pages/recipe_lens_upload_page.dart';
 import 'package:kitchenowl/pages/settings_page.dart';
 import 'package:kitchenowl/pages/settings_user_page.dart';
 import 'package:kitchenowl/pages/setup_page.dart';
@@ -275,6 +276,15 @@ final router = GoRouter(
                 child: const RecipeListPage(),
               ),
               routes: [
+                GoRoute(
+                  parentNavigatorKey: _rootNavigatorKey,
+                  path: 'scan',
+                  builder: (context, state) => RecipeLensUploadPage(
+                    household: Household(
+                      id: int.tryParse(state.pathParameters['id'] ?? '') ?? -1,
+                    ),
+                  ),
+                ),
                 GoRoute(
                   parentNavigatorKey: _rootNavigatorKey,
                   path: 'details/:recipeId',
