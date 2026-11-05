@@ -30,6 +30,9 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
   final instructions = TextEditingController();
   bool loading = false;
   bool matching = false;
+  bool suggesting = false;
+  int suggestionGeneration = 0;
+  final Map<int, Item> suggestedItems = {};
   String? error;
   String? filename;
   Map<String, dynamic>? result;
@@ -70,6 +73,8 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
       result = null;
       filename = picked.name;
       matchedItems.clear();
+      suggestedItems.clear();
+      suggestionGeneration++;
     });
     try {
       final response = await ApiService.getInstance().postBytes(
@@ -121,6 +126,59 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
     return value;
   }
 
+  String _ingredientName(String line) {
+    return line
+        .trim()
+        .toLowerCase()
+        .replaceFirst(RegExp(r'^\d+(?:[.,/]\d+)?\s*'), '')
+        .replaceFirst(
+          RegExp(
+            r'^(?:g|kg|ml|l|oz|lb|cups?|tbsp|tsp|tablespoons?|teaspoons?|slices?|cloves?|cans?|pieces?)\b\.?\s*',
+          ),
+          '',
+        )
+        .trim();
+  }
+
+  String _matchKey(String name) =>
+      name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
+
+  Future<void> _suggestIngredients(int generation) async {
+    for (var i = 0; i < ingredientLines.length; i++) {
+      final query = _ingredientName(ingredientLines[i]);
+      if (query.isEmpty) continue;
+      try {
+        final results =
+            await ApiService.getInstance().searchItem(
+              widget.household,
+              query,
+            ) ??
+            [];
+        if (!mounted || generation != suggestionGeneration) return;
+        if (matchedItems.containsKey(i)) continue;
+        final exact = results
+            .where(
+              (item) =>
+                  item.id != null && _matchKey(item.name) == _matchKey(query),
+            )
+            .toList();
+        if (exact.length == 1) {
+          matchedItems[i] = RecipeItem.fromItem(
+            item: exact.first,
+          ).copyWith(description: ingredientLines[i]);
+        } else if (results.isNotEmpty) {
+          suggestedItems[i] = results.first;
+        }
+        setState(() {});
+      } catch (_) {
+        // Search failures leave the line available for manual matching.
+      }
+    }
+    if (mounted && generation == suggestionGeneration) {
+      setState(() => suggesting = false);
+    }
+  }
+
   void reviewIngredients() {
     try {
       if (title.text.trim().isEmpty || title.text.trim().length > 128) {
@@ -140,12 +198,16 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
       if (lines.isEmpty) {
         throw const FormatException('Enter at least one ingredient.');
       }
+      final generation = ++suggestionGeneration;
       setState(() {
         ingredientLines = lines;
         matchedItems.clear();
+        suggestedItems.clear();
         matching = true;
+        suggesting = true;
         error = null;
       });
+      _suggestIngredients(generation);
     } on FormatException catch (e) {
       setState(() => error = e.message);
     }
@@ -165,11 +227,12 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
       ),
     );
     if (!mounted || selected == null || selected.length != 1) return;
-    setState(
-      () => matchedItems[index] = RecipeItem.fromItem(
+    setState(() {
+      matchedItems[index] = RecipeItem.fromItem(
         item: selected.first,
-      ).copyWith(description: ingredientLines[index]),
-    );
+      ).copyWith(description: ingredientLines[index]);
+      suggestedItems.remove(index);
+    });
   }
 
   Future<void> openRecipeEditor() async {
@@ -304,22 +367,44 @@ class _RecipeLensUploadPageState extends State<RecipeLensUploadPage> {
 
   List<Widget> _matchingWidgets() => [
     const Text(
-      'Choose a household item for each OCR ingredient. The original line, including quantity, is kept with the recipe.',
+      'Clear matches are filled automatically. Review any unmatched ingredient. Tap a match to change it; the original quantity is kept.',
     ),
+    if (suggesting) const LinearProgressIndicator(),
     const SizedBox(height: 16),
     for (var i = 0; i < ingredientLines.length; i++)
       ListTile(
         title: Text(ingredientLines[i]),
-        subtitle: Text(matchedItems[i]?.name ?? 'Choose item'),
-        trailing: Icon(
-          matchedItems[i] == null ? Icons.add_rounded : Icons.edit_rounded,
+        subtitle: Text(
+          matchedItems[i]?.name ??
+              (suggestedItems[i] == null
+                  ? 'Choose item'
+                  : 'Suggested: ${suggestedItems[i]!.name} — tap to confirm'),
         ),
-        onTap: () => selectIngredient(i),
+        trailing: IconButton(
+          icon: Icon(
+            matchedItems[i] == null ? Icons.search_rounded : Icons.edit_rounded,
+          ),
+          tooltip: 'Search for another item',
+          onPressed: () => selectIngredient(i),
+        ),
+        onTap: () {
+          final suggestion = suggestedItems[i];
+          if (matchedItems[i] != null || suggestion == null) {
+            selectIngredient(i);
+          } else {
+            setState(() {
+              matchedItems[i] = RecipeItem.fromItem(
+                item: suggestion,
+              ).copyWith(description: ingredientLines[i]);
+              suggestedItems.remove(i);
+            });
+          }
+        },
       ),
     if (error != null) _error(context),
     const SizedBox(height: 16),
     ElevatedButton(
-      onPressed: matchedItems.length == ingredientLines.length
+      onPressed: !suggesting && matchedItems.length == ingredientLines.length
           ? openRecipeEditor
           : null,
       child: const Text('Continue to recipe editor'),
