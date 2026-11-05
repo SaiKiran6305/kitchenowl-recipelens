@@ -25,8 +25,13 @@ class RecipeCreateFab extends StatelessWidget {
           tooltip: 'Scan printed recipe',
           onPressed: () async {
             final household = BlocProvider.of<RecipeListCubit>(context).household;
-            await context.push('/household/${household.id}/recipes/scan');
+            final res = await context.push<UpdateEnum>(
+              '/household/${household.id}/recipes/scan',
+            );
             _fabKey.currentState?.reset();
+            if (res == UpdateEnum.updated && context.mounted) {
+              BlocProvider.of<RecipeListCubit>(context).refresh();
+            }
           },
           child: const Icon(Icons.document_scanner_rounded),
         ),
