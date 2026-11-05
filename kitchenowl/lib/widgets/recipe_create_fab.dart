@@ -20,6 +20,16 @@ class RecipeCreateFab extends StatelessWidget {
       distance: 70,
       openIcon: const Icon(Icons.add),
       children: [
+        FloatingActionButton(
+          heroTag: null,
+          tooltip: 'Scan printed recipe',
+          onPressed: () async {
+            final household = BlocProvider.of<RecipeListCubit>(context).household;
+            await context.push('/household/${household.id}/recipes/scan');
+            _fabKey.currentState?.reset();
+          },
+          child: const Icon(Icons.document_scanner_rounded),
+        ),
         KitchenOwlFab(
           openBuilder: (BuildContext ctx, VoidCallback _) {
             return AddUpdateRecipePage(

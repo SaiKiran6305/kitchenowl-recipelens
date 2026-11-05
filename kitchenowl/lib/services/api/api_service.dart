@@ -228,9 +228,10 @@ class ApiService {
         ),
       );
 
-  Future<http.Response> postBytes(String url, NamedByteArray array) =>
+  Future<http.Response> postBytes(String url, NamedByteArray array,
+          {Duration timeout = _TIMEOUT_FILE_UPLOAD}) =>
       _handleRequest(
-        timeout: _TIMEOUT_FILE_UPLOAD,
+        timeout: timeout,
         () async {
           final request =
               http.MultipartRequest('POST', Uri.parse(baseUrl + url));
